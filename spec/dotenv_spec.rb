@@ -16,6 +16,18 @@ describe Dotenv do
       end
     end
 
+    context "with no args and .env file higher in directory tree" do
+      let(:env_files) { [] }
+      before { Dir.chdir("test_dir") }
+      after { Dir.chdir("..") }
+
+      it "defaults to .env found in higher level directory" do
+        expect(Dotenv::Environment).to receive(:new).with(expand("../.env"))
+          .and_return(double(:apply => {}, :apply! => {}))
+        subject
+      end
+    end
+
     context "with a tilde path" do
       let(:env_files) { ["~/.env"] }
 
