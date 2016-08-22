@@ -40,7 +40,12 @@ module Dotenv
   #
   # Returns a hash of all the loaded environment variables.
   def with(*filenames)
-    filenames << ".env" if filenames.empty?
+    if filenames.empty?
+      locations = Pathname.pwd.ascend.map { |path| "#{path}.env" }
+      closest_location = locations.find { |file| File.exists?(file) }.to_s
+      filenames << closest_location
+    end
+
 
     filenames.reduce({}) do |hash, filename|
       hash.merge!(yield(File.expand_path(filename)) || {})
