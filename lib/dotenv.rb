@@ -40,11 +40,7 @@ module Dotenv
   #
   # Returns a hash of all the loaded environment variables.
   def with(*filenames)
-    if filenames.empty?
-      locations = Pathname.pwd.ascend.map { |path| path + ".env" }
-      closest_location = locations.find { |file| File.exist?(file) } || ".env"
-      filenames << closest_location.to_s
-    end
+    filenames << locate_file || ".env" if filenames.empty?
 
     filenames.reduce({}) do |hash, filename|
       hash.merge!(yield(File.expand_path(filename)) || {})
@@ -62,5 +58,10 @@ module Dotenv
   def ignoring_nonexistent_files
     yield
   rescue Errno::ENOENT
+  end
+
+  def locate_file(path = Pathname.pwd)
+    filepath = path.join(".env")
+    File.exist?(filepath) && filepath || locate_file(path.parent)
   end
 end
