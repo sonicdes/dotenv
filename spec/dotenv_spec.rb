@@ -18,8 +18,14 @@ describe Dotenv do
 
     context "with no args and .env file higher in directory tree" do
       let(:env_files) { [] }
-      before { Dir.chdir("test_dir") }
-      after { Dir.chdir("..") }
+      before do
+        Dir.mkdir("test_dir") unless File.exist?("test_dir")
+        Dir.chdir("test_dir")
+      end
+      after do
+        Dir.chdir("..")
+        Dir.unlink("test_dir")
+      end
 
       it "defaults to .env found in higher level directory" do
         expect(Dotenv::Environment).to receive(:new).with(expand("../.env"))

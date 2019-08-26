@@ -61,6 +61,7 @@ module Dotenv
   end
 
   def locate_file(path = Pathname.pwd)
+    return if path.root?
     filepath = path.join(".env")
     File.exist?(filepath) && filepath || locate_file(path.parent)
   end
